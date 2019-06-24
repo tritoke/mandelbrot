@@ -118,7 +118,6 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
 }
 
 int main(void) {
-
   /*
    *  initial check on the ratio between the size of the
    *  area specified by the top right and bottom left coordinates
@@ -131,10 +130,10 @@ int main(void) {
   /* fill the colour pallette */
   fill();
 
+  /* open the file and write the magic value / metadata */
   FILE * fp;
   fp = fopen(fname, "wb");
 
-  /* write the magic value, width and length of the image */
   fwrite("farbfeld", sizeof(char), 8, fp);
   uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
   fwrite(geom, sizeof(uint32_t), 2, fp);

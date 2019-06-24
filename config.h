@@ -21,4 +21,4 @@ long double blx = -2,
             try =  2;
 
 // the name of the file to save the image to
-char * fname = "mand.ff";
+char fname[] = "mand.ff";

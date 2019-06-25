@@ -10,6 +10,8 @@
 #include "config.h"
 
 uint16_t colours[360*4];
+uint16_t * pixels;
+uint32_t numpixels = xlen * ylen;
 
 void fill(void) {
   /*
@@ -117,6 +119,14 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
   memcpy(pixel, val, 4*sizeof(uint16_t));
 }
 
+void threadfunc(void * varg) {
+  long threadnum = *(long *) varg;
+  /*
+   * find a function which will give the start 
+   * and end position for each pixel correctly
+   */
+}
+
 int main(void) {
   /*
    *  initial check on the ratio between the size of the
@@ -138,7 +148,7 @@ int main(void) {
   uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
   fwrite(geom, sizeof(uint32_t), 2, fp);
 
-  uint16_t * pixels = malloc(sizeof(uint16_t) * xlen * ylen * 4);
+  pixels = malloc(sizeof(uint16_t) * xlen * ylen * 4);
 
   /* 
    * farbfeld is a row major image system so we

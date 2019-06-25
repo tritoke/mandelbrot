@@ -8,8 +8,8 @@ int8_t style = 0;
 // the x and y lengths of the image in numbers of pixels
 // as well as the number of threads to use and the number
 // of iterations before declaring a value to be in the set
-uint32_t xlen = 500,
-         ylen = 500,
+uint32_t xlen = 600,
+         ylen = 600,
          iterations = 100,
          threads=8;
 

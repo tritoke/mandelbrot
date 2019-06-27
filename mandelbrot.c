@@ -3,15 +3,16 @@
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "config.h"
 
 uint16_t colours[360*4];
 uint16_t * pixels;
-uint32_t numpixels = xlen * ylen;
 
 void fill(void) {
   /*
@@ -119,15 +120,24 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
   memcpy(pixel, val, 4*sizeof(uint16_t));
 }
 
-void threadfunc(void * varg) {
-  long threadnum = *(long *) varg;
-  /*
-   * find a function which will give the start 
-   * and end position for each pixel correctly
-   */
+void * threadfunc(void * varg) {
+  long threadnum = (long) varg;
+  uint32_t starty = (uint32_t) floor(ylen * ((double) threadnum / (double) threads));
+  uint32_t endy = (uint32_t) floor(ylen * ((double) (threadnum+1) / (double) threads));
+
+  uint16_t * local_pixel_pointer = pixels + (starty * ylen * 4);
+
+  uint32_t i = 0;
+  for (uint32_t y = starty; y < endy; y++) {
+    for (uint32_t x = 0; x < xlen; x++, i+=4, local_pixel_pointer+=4) {
+      colour(x,y,local_pixel_pointer);
+    }
+  }
+  return NULL;
 }
 
 int main(void) {
+
   /*
    *  initial check on the ratio between the size of the
    *  area specified by the top right and bottom left coordinates
@@ -150,14 +160,28 @@ int main(void) {
 
   pixels = malloc(sizeof(uint16_t) * xlen * ylen * 4);
 
-  /* 
-   * farbfeld is a row major image system so we
-   * need to iterate over rows on the inner loop
+  /*
+   * new threading plan:
+   *  create each of the threads and have each thread work on one row at a time
+   *  then when each thread is finished it locks the mutex on the current row
+   *  variable before incrementing it and releasing the lock before starting
+   *  to work on the pixels in that row.
    */
 
-  for (int y = 0, i = 0; y < ylen; y++)
-    for (int x = 0; x < xlen; x++, i+=4)
-      colour(x,y,&pixels[i]);
+  pthread_t tids[threads];
+  for (long i = 0; i < threads; i++) {
+    if (pthread_create(&tids[i], NULL, threadfunc, (void *) i)) {
+      printf("error creating thread %ld\n", i);
+      return 1;
+    } else printf("created thread %ld\n", i);
+  } 
+
+  for (long i = 0; i < threads; i++) {
+    if (pthread_join(tids[i], NULL)) {
+      printf("failed to join thread %ld\n", i);
+      return 2;
+    } else printf("joined thread %ld\n", i);
+  }
 
   fwrite(pixels, sizeof(uint16_t), xlen * ylen * 4, fp);
   fclose(fp);

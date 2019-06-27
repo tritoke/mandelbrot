@@ -3,15 +3,16 @@
 // 2 -> bi flag alternating each pixel
 // 3 -> greyscale for iterations between 100 and 1000
 // 4 -> greyscale for more than 1000 iterations
-int8_t style = 0;
+int8_t style = 2;
 
 // the x and y lengths of the image in numbers of pixels
 // as well as the number of threads to use and the number
 // of iterations before declaring a value to be in the set
-uint32_t xlen = 600,
-         ylen = 600,
-         iterations = 100,
-         threads=8;
+uint32_t xlen = 500,
+         ylen = 500,
+         iterations = 100;
+
+#define threads 8
 
 // the bottom left (blx, bly) and top right (trx, try) coordinates
 // defining the area of the fractal to render

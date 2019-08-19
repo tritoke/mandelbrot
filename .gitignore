@@ -5,6 +5,9 @@
 # the executable file
 mand
 
+# various makefile generated images
+mand.*
+
 # Prerequisites
 *.d
 

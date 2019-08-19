@@ -44,16 +44,14 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
    * colour the pixel with the values for the coordinate at x+iy
    *  z = a + bi, c = c + di
    */
-//printf("[colour]\tx:%d\ty:%d\n", x, y);
-//printf("[colour]\tpixel=%p\n", (void *) pixel);
 
   uint32_t i = 0;
   long double c = blx + (x / (xlen / (trx-blx))),
               d = try - (y / (ylen / (try-bly))),
               a = c,
               b = d,
-              a2 = powl(a, 2),
-              b2 = powl(b, 2),
+              a2 = a * a,
+              b2 = b * b,
               temp;
 
   while ((i < iterations) && ((a2 + b2) < 4)) {
@@ -65,9 +63,9 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
     b = ((a + a) * b) + d;
     a = temp;
 
-    a2 = powl(a, 2);
-    b2 = powl(b, 2);
-  }
+    a2 = a * a;
+    b2 = b * b;
+  } 
 
   if (i == iterations) {
     const uint16_t default_pixel[4] = {0,0,0,UINT16_MAX};

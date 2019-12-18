@@ -39,6 +39,19 @@ void read_map(const char * mapfile) {
   free(buf);
 }
 
+void colour_random(void) {
+  /*
+   * generate a random colour map
+   */
+  srand(time(NULL));
+  for (int i = 0; i < 256; i++) {
+    colours[(i << 2) + 0] = rand() % UINT16_MAX;
+    colours[(i << 2) + 1] = rand() % UINT16_MAX;
+    colours[(i << 2) + 2] = rand() % UINT16_MAX;
+    colours[(i << 2) + 3] = UINT16_MAX;
+  }
+}
+
 void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
   /*
    * colour the pixel with the values for the coordinate at x+iy
@@ -73,6 +86,7 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
   } else {
     switch (style) {
       case 1:
+      case 5:
         // load the colours from the specified map file
         memcpy(pixel, &colours[(i%256)*4], 4*sizeof(uint16_t));
         break;
@@ -156,16 +170,11 @@ int main(void) {
   /* fill the colour pallette */
   read_map(mapfile);
 
-  /* open the file and write the magic value / metadata */
-  FILE * fp;
-  fp = fopen(fname, "wb");
-
-  fwrite("farbfeld", sizeof(char), 8, fp);
-  uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
-  fwrite(geom, sizeof(uint32_t), 2, fp);
-
   pixels = malloc(sizeof(uint16_t) * xlen * ylen * 4);
+  printf("no. uint16_ts = %zu\n", sizeof(uint16_t) * xlen * ylen * 4);
   pthread_t tids[threads];
+
+  if (style == 5) colour_random();
 
   // acquire lock
   if (pthread_mutex_lock(&mtx) != 0) {
@@ -194,6 +203,14 @@ int main(void) {
   }
 
   puts("[main]\t\twriting pixels");
+
+  /* open the file and write the magic value / metadata */
+  FILE * fp;
+  fp = fopen(fname, "wb");
+
+  fwrite("farbfeld", sizeof(char), 8, fp);
+  uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
+  fwrite(geom, sizeof(uint32_t), 2, fp);
 
   fwrite(pixels, sizeof(uint16_t), xlen * ylen * 4, fp);
 

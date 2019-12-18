@@ -24,7 +24,7 @@ png: mand.ff
 	ff2png < mand.ff > mand.png
 
 jpg: mand.ff
-	ff2png < mand.ff > mand.jpg
+	ff2jpg < mand.ff > mand.jpg
 
 jpeg: jpg
 

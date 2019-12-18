@@ -2,6 +2,9 @@
 *.ff
 *.bz2
 
+# ImageMagick temp directory
+tmp/
+
 # the executable file
 mand
 

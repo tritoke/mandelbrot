@@ -9,7 +9,7 @@ tmp/
 mand
 
 # various makefile generated images
-mand.*
+out.*
 
 # Prerequisites
 *.d

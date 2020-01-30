@@ -1,10 +1,11 @@
-// defines the style of the resulting render
-// 1 -> use the map file specified by mapfile
-// 2 -> bi flag alternating each pixel
-// 3 -> greyscale for iterations between 100 and 1000
-// 4 -> greyscale for more than 1000 iterations
-// 5 -> randomly generated colours
-#define style 4
+/* defines the style of the resulting render
+ * 1 -> use the map file specified by mapfile
+ * 2 -> bi flag alternating each pixel
+ * 3 -> greyscale for iterations between 100 and 1000
+ * 4 -> greyscale for more than 1000 iterations
+ * 5 -> randomly generated colours
+ */
+#define style 1
 
 const char mapfile[] = "colourmaps/Skydye05.cmap";
 /* dank:
@@ -17,15 +18,30 @@ lkmtch(05,12),Skydye05
 // as well as the number of threads to use and the number
 // of iterations before declaring a value to be in the set
 #define ratio 1
-const size_t xlen = 20000;
+const size_t xlen = 32000;
 const size_t ylen = (xlen * ratio);
-#define iterations 10000
+const size_t iterations = 10000000;
 
 // the number of threads to use when rendering the image
 #define threads 8
 
 // the bottom left (blx, bly) and top right (trx, try) coordinates
 // defining the area of the fractal to render
+
+
+/* If defined this will create a julia set with c = c_x + i * c_y */
+#define JULIA
+#ifdef JULIA  /* render julia set */
+
+const long double c_x = -0.8;
+const long double c_y = 0.156;
+
+#else /* render mandelbrot set */
+
+// the name of the file to save the image to
+
+#endif
+
 
 #if (0) // close
 
@@ -41,14 +57,6 @@ const size_t ylen = (xlen * ratio);
 
 #endif
 
-/*
-const long double blx = centre_x - radius,
-                  bly = centre_y - radius,
-                  trx = centre_x + radius,
-                  try = centre_y + radius;
-
-*/
-
 const long double x_off = 0,
                   y_off = 0,
                   blx = centre_x - (radius * 1) + x_off,
@@ -56,5 +64,4 @@ const long double x_off = 0,
                   trx = centre_x + (radius * 1) + x_off,
                   try = centre_y + (radius * ratio) + y_off;
 
-// the name of the file to save the image to
-#define fname "mand.ff"
+#define fname "out.ff"

@@ -8,23 +8,23 @@ mand:
 	${CC} ${OBJ} ${CFLAGS} -o mand
 
 debug:
-	${CC} ${OBJ} ${CFLAGS} -g3 -oO -o mand
+	${CC} ${OBJ} ${CFLAGS} -g3 -OO -o mand
 
 run: mand
 	./mand
 
-view: mand.ff
-	feh mand.ff &
+view: out.ff
+	feh out.ff &
 
-compress: mand.ff
-	cp mand.ff compressed.ff
+compress: out.ff
+	cp out.ff compressed.ff
 	pbzip2 compressed.ff &
 
-png: mand.ff
-	ff2png < mand.ff > mand.png
+png: out.ff
+	ff2png < out.ff > out.png
 
-jpg: mand.ff
-	ff2jpg < mand.ff > mand.jpg
+jpg: out.ff
+	ff2jpg < out.ff > out.jpg
 
 jpeg: jpg
 

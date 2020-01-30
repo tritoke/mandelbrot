@@ -58,7 +58,7 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
    *  z = a + bi, c = c + di
    */
 
-  uint32_t i = 0;
+  size_t i = 0;
   long double c = blx + (x / (xlen / (trx-blx))),
               d = try - (y / (ylen / (try-bly))),
               a = c,
@@ -69,7 +69,16 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
 
   while ((i < iterations) && ((a2 + b2) < 4)) {
     i++;
+#ifdef JULIA
+    // a^2 - b^2 + c
+    temp = a2 - b2 + c_x;
+    // 2ab + d
+    b = ((a + a) * b) + c_y;
+    a = temp;
 
+    a2 = a * a;
+    b2 = b * b;
+#else
     // a^2 - b^2 + c
     temp = a2 - b2 + c;
     // 2ab + d
@@ -78,6 +87,7 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
 
     a2 = a * a;
     b2 = b * b;
+#endif
   } 
 
   if (i == iterations) {
@@ -103,12 +113,14 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
         }
       case 3: {
         //good for between 100 and 1000 iterations
+				i = i & ((1L<<33) - 1); // crop i to uint32_t
         uint16_t scaled_pixel[4] = {htons(i<<8), htons(i<<8), htons(i<<8), UINT16_MAX};
         memcpy(pixel, scaled_pixel, 4*sizeof(uint16_t));
         break;
       }
       case 4: {
         //good for more than 1000 iterations
+				i = i & ((1L<<33) - 1); // crop i to uint32_t
         uint16_t scaled_pixel[4] = {htons(i<<7), htons(i<<7), htons(i<<7), UINT16_MAX};
         memcpy(pixel, scaled_pixel, 4*sizeof(uint16_t));
         break;
@@ -116,6 +128,7 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
       default: 
       // the default colour scheme is good for less than 100 iterations
       {
+				i = i & ((1L<<33) - 1); // crop i to uint32_t
         uint16_t scaled_pixel[4] = {htons(i<<9), htons(i<<9), htons(i<<9), UINT16_MAX};
         memcpy(pixel, scaled_pixel, 4*sizeof(uint16_t));
       }
@@ -125,7 +138,7 @@ void colour(uint32_t x, uint32_t y, uint16_t * pixel) {
 
 static void * threadfunc(void * varg) {
   /*
-   * colours the y'th column of the image.
+   * colours the y'th row of the image.
    */
 
   uint32_t y = ((uint64_t) varg) & ((uint32_t) ~0);
@@ -182,6 +195,13 @@ int main(void) {
     exit(EXIT_FAILURE);
   }
 
+  /* open the file and write the magic value / metadata */
+  FILE * fp;
+  fp = fopen(fname, "wb");
+
+  fwrite("farbfeld", sizeof(char), 8, fp);
+  uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
+  fwrite(geom, sizeof(uint32_t), 2, fp);
   for (uint32_t i = 0; i < threads; i++, current_y++) {
     if (pthread_create(&tids[i], NULL, threadfunc, (void *) (uint64_t) i)) {
       printf("error creating thread %d\n", i);
@@ -191,7 +211,7 @@ int main(void) {
 
   // release lock
   if (pthread_mutex_unlock(&mtx) != 0) {
-    // failed to release the lock exit the program.
+    // failed to release the lock => exit
     exit(EXIT_FAILURE);
   }
 
@@ -203,14 +223,6 @@ int main(void) {
   }
 
   puts("[main]\t\twriting pixels");
-
-  /* open the file and write the magic value / metadata */
-  FILE * fp;
-  fp = fopen(fname, "wb");
-
-  fwrite("farbfeld", sizeof(char), 8, fp);
-  uint32_t geom[2] = {htonl(xlen), htonl(ylen)};
-  fwrite(geom, sizeof(uint32_t), 2, fp);
 
   fwrite(pixels, sizeof(uint16_t), xlen * ylen * 4, fp);
 

@@ -1,13 +1,16 @@
 /* defines the style of the resulting render
- * 1 -> use the map file specified by mapfile
+ * -2 -> greyscale for iterations between 100 and 1000
+ * -1 -> greyscale for more than 1000 iterations
+ * 0 -> use the map file specified by mapfile
+ * 1 -> randomly generated colours
  * 2 -> bi flag alternating each pixel
- * 3 -> greyscale for iterations between 100 and 1000
- * 4 -> greyscale for more than 1000 iterations
- * 5 -> randomly generated colours
+ * 3 -> pan flag alternating each pixel
+ * 4 -> trans flag alternating each pixel
  */
-#define style 1
+#define style 4
 
-const char mapfile[] = "colourmaps/Skydye05.cmap";
+//const char mapfile[] = "colourmaps/Skydye05.cmap";
+const char mapfile[] = "colourmaps/Lindaa04.cmap";
 /* dank:
 damien3, Digiorg1, bud(2,4), droz(22,60)
 glasses2, headache, Lindaa(02,04,06,09,10,16,17)
@@ -18,9 +21,9 @@ lkmtch(05,12),Skydye05
 // as well as the number of threads to use and the number
 // of iterations before declaring a value to be in the set
 #define ratio 1
-const size_t xlen = 32000;
+const size_t xlen = 20000;
 const size_t ylen = (xlen * ratio);
-const size_t iterations = 10000000;
+const size_t iterations = 2000;
 
 // the number of threads to use when rendering the image
 #define threads 8
@@ -30,15 +33,19 @@ const size_t iterations = 10000000;
 
 
 /* If defined this will create a julia set with c = c_x + i * c_y */
-#define JULIA
+//#define JULIA
 #ifdef JULIA  /* render julia set */
+
+/*
+ * Good values:
+ *  (-0.8, 0.156)
+ *  (-0.4, 0.6)
+ *  (0.285, 0.01)
+ *  (-0.835, -0.2321)
+ */
 
 const long double c_x = -0.8;
 const long double c_y = 0.156;
-
-#else /* render mandelbrot set */
-
-// the name of the file to save the image to
 
 #endif
 
